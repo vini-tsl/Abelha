@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="honeycomb-bg"></div>
+    <h2><i class="fas fa-home"></i> Estado da Colmeia</h2>
+
+    <form method="POST" action="{{ url_for('salvar_estado_colmeia') }}">
+        <div class="form-group">
+            <label for="especie"><i class="fas fa-feather-alt"></i> Espécie</label>
+            <input type="text" id="especie" name="especie" placeholder="Ex: Apis mellifera" value="{{ estado_atual.especie if estado_atual }}">
+            {% if estado_atual %}
+            <div class="atualizacao">Última atualização: {{ estado_atual.data_atualizacao.strftime('%d/%m/%Y %H:%M') }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="peso"><i class="fas fa-weight-hanging"></i> Peso da Colmeia (kg)</label>
+            <input type="number" id="peso" name="peso" step="0.01" placeholder="Ex: 12.5" value="{{ estado_atual.peso if estado_atual }}">
+        </div>
+
+        <div class="form-group">
+            <label for="contagem"><i class="fas fa-bug"></i> Contagem de Abelhas</label>
+            <input type="number" id="contagem" name="contagem" step="1" min="0" placeholder="Número aproximado" value="{{ estado_atual.contagem_abelhas if estado_atual }}">
+        </div>
+
+        <div class="form-group">
+            <label for="observacoes"><i class="fas fa-sticky-note"></i> Observações/Comentários</label>
+            <textarea id="observacoes" name="observacoes" placeholder="Observações sobre o estado geral da colmeia...">{{ estado_atual.observacoes if estado_atual }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="estado"><i class="fas fa-heartbeat"></i> Indicação de Estado</label>
+            <select id="estado" name="estado">
+                <option value="normal" {% if estado_atual and estado_atual.estado == 'normal' %}selected{% endif %}>Normal</option>
+                <option value="alerta" {% if estado_atual and estado_atual.estado == 'alerta' %}selected{% endif %}>Alerta</option>
+            </select>
+        </div>
+
+        {% if estado_atual %}
+        <div id="statusVisual">
+            {% if estado_atual.estado == 'normal' %}
+            <div class="status-normal"><i class="fas fa-check-circle"></i> Estado da colmeia: NORMAL</div>
+            {% else %}
+            <div class="status-alerta"><i class="fas fa-exclamation-triangle"></i> Estado da colmeia: ALERTA - Atenção necessária</div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <div class="btn-group">
+            <button type="submit" class="btn">
+                <i class="fas fa-save"></i> Salvar Estado
+            </button>
+            <a href="{{ url_for('monitoramento') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+        </div>
+    </form>
+
+    <h3><i class="fas fa-history"></i> Histórico de Estados</h3>
+    <div id="historico-estados">
+        {% for estado in todos_estados %}
+        <div class="registro">
+            <strong><i class="fas fa-calendar"></i> Data/Hora:</strong> {{ estado.data_atualizacao.strftime('%d/%m/%Y %H:%M') }}<br>
+            <strong><i class="fas fa-user"></i> Registrado por:</strong> {{ estado.usuario.nome }}<br>
+            <strong><i class="fas fa-feather-alt"></i> Espécie:</strong> {{ estado.especie or "Não informada" }}<br>
+            <strong><i class="fas fa-weight-hanging"></i> Peso:</strong> {{ estado.peso or "Não informado" }} kg<br>
+            <strong><i class="fas fa-bug"></i> Contagem:</strong> {{ estado.contagem_abelhas or "Não informada" }}<br>
+            <strong><i class="fas fa-heartbeat"></i> Estado:</strong> 
+                <span class="{% if estado.estado == 'normal' %}status-normal{% else %}status-alerta{% endif %}" style="display: inline-block; padding: 2px 8px; border-radius: 4px;">
+                    {{ estado.estado|upper }}
+                </span><br>
+            
+            {% if is_admin or estado.usuario_id == session.usuario_id %}
+            <form method="POST" action="{{ url_for('excluir_estado_colmeia', id=estado.id) }}" style="display: inline;">
+                <button type="submit" onclick="return confirm('Tem certeza que deseja apagar este registro?')">
+                    <i class="fas fa-trash"></i> Apagar
+                </button>
+            </form>
+            {% endif %}
+        </div>
+        {% else %}
+        <p>Nenhum estado da colmeia registrado.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

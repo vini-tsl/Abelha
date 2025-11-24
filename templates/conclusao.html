@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="honeycomb-bg"></div>
+    <h2><i class="fas fa-chart-line"></i> Conclusão e Análise</h2>
+    
+    <div class="welcome-message">
+        <i class="fas fa-info-circle"></i> Resumo completo do monitoramento das colmeias
+    </div>
+
+    <!-- Resumo Produção de Mel -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">{{ "%.1f"|format(total_mel) }}</div>
+            <div class="stat-label">Total Mel (kg)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ "%.1f"|format(media_mel) }}</div>
+            <div class="stat-label">Média por Colheita</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ "%.1f"|format(media_atividade) }}/10</div>
+            <div class="stat-label">Atividade Média</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ total_capturas }}</div>
+            <div class="stat-label">Total Capturas</div>
+        </div>
+    </div>
+
+    <!-- Detalhamento por Área -->
+    <div style="display: grid; gap: 20px; margin-top: 30px;">
+        <!-- Produção de Mel -->
+        <div class="registro">
+            <h3><i class="fas fa-jar"></i> Produção de Mel</h3>
+            <p><strong>Total Produzido:</strong> {{ "%.2f"|format(total_mel) }} kg</p>
+            <p><strong>Média por Colheita:</strong> {{ "%.2f"|format(media_mel) }} kg</p>
+            {% if ultima_producao %}
+            <p><strong>Última Colheita:</strong> {{ ultima_producao.quantidade }} kg em {{ ultima_producao.data_colheita.strftime('%d/%m/%Y') }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Saúde das Abelhas -->
+        <div class="registro">
+            <h3><i class="fas fa-heartbeat"></i> Saúde das Abelhas</h3>
+            <p><strong>Nível Médio de Atividade:</strong> {{ "%.1f"|format(media_atividade) }}/10</p>
+            <p><strong>Presença Média de Alimento:</strong> {{ "%.1f"|format(media_alimento) }}/10</p>
+            <p><strong>Total de Registros:</strong> {{ todas_saude|length }}</p>
+        </div>
+
+        <!-- Captura de Abelhas -->
+        <div class="registro">
+            <h3><i class="fas fa-bug"></i> Captura de Abelhas</h3>
+            <p><strong>Total de Capturas:</strong> {{ total_capturas }}</p>
+            <p><strong>Última Captura:</strong> 
+                {% if todas_capturas %}
+                    {{ todas_capturas[0].data_captura.strftime('%d/%m/%Y') }}
+                {% else %}
+                    Nenhuma captura registrada
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- Estado da Colmeia -->
+        <div class="registro">
+            <h3><i class="fas fa-home"></i> Estado da Colmeia</h3>
+            {% if estado_atual %}
+            <p><strong>Estado Atual:</strong> 
+                <span class="{% if estado_atual.estado == 'normal' %}status-normal{% else %}status-alerta{% endif %}" style="display: inline-block; padding: 5px 10px;">
+                    {{ estado_atual.estado|upper }}
+                </span>
+            </p>
+            <p><strong>Espécie:</strong> {{ estado_atual.especie or 'Não informada' }}</p>
+            <p><strong>Peso:</strong> {{ estado_atual.peso or 'Não informado' }} kg</p>
+            <p><strong>Contagem de Abelhas:</strong> {{ estado_atual.contagem_abelhas or 'Não informada' }}</p>
+            {% else %}
+            <p>Nenhum estado da colmeia registrado</p>
+            {% endif %}
+        </div>
+
+        <!-- Observações Finais Automáticas -->
+        <div class="registro" style="background: #e8f5e8; border-left: 5px solid #4CAF50;">
+            <h3><i class="fas fa-lightbulb"></i> Observações Finais Automáticas</h3>
+            <ul style="margin-left: 20px;">
+                {% for obs in observacoes_finais %}
+                <li>{{ obs }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="btn-group">
+        <a href="{{ url_for('monitoramento') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Voltar ao Monitoramento
+        </a>
+        <button class="btn" onclick="window.print()">
+            <i class="fas fa-print"></i> Imprimir Relatório
+        </button>
+    </div>
+</div>
+
+<style>
+    @media print {
+        .nav-menu, .btn-group {
+            display: none !important;
+        }
+        .container {
+            box-shadow: none !important;
+            border: 1px solid #ccc !important;
+        }
+    }
+</style>
+{% endblock %}

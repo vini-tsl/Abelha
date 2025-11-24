@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="honeycomb-bg"></div>
+    <h2><i class="fas fa-binoculars"></i> Monitoramento das Abelhas</h2>
+    
+    <div class="welcome-message">
+        <i class="fas fa-info-circle"></i> Bem-vindo, {{ session.usuario_nome }}! 
+        Sistema de monitoramento em tempo real das abelhas.
+    </div>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">{{ todas_evidencias|length }}</div>
+            <div class="stat-label">Evidências</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ capturas|length }}</div>
+            <div class="stat-label">Capturas</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ registros_saude|length }}</div>
+            <div class="stat-label">Registros Saúde</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ producoes_mel|length }}</div>
+            <div class="stat-label">Produções Mel</div>
+        </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('registrar_evidencia') }}">
+        <div class="form-group">
+            <label for="descricaoEvidencia"><i class="fas fa-clipboard"></i> Descrição da Evidência</label>
+            <textarea id="descricaoEvidencia" name="descricaoEvidencia" placeholder="Descreva o que foi observado..." required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="anotacoes"><i class="fas fa-sticky-note"></i> Anotações e Observações</label>
+            <textarea id="anotacoes" name="anotacoes" placeholder="Anotações adicionais..."></textarea>
+        </div>
+
+        <div class="btn-group">
+            <button type="submit" class="btn">
+                <i class="fas fa-save"></i> Registrar Evidência
+            </button>
+        </div>
+    </form>
+
+    <h3><i class="fas fa-history"></i> Minhas Evidências</h3>
+    <div id="registros">
+        {% for evidencia in evidencias %}
+        <div class="registro">
+            <strong><i class="fas fa-calendar"></i> Data/Hora:</strong> {{ evidencia.data_registro.strftime('%d/%m/%Y %H:%M') }}<br>
+            <strong><i class="fas fa-user"></i> Registrado por:</strong> {{ evidencia.usuario.nome }}<br>
+            <strong><i class="fas fa-clipboard"></i> Descrição:</strong> {{ evidencia.descricao }}<br>
+            <strong><i class="fas fa-sticky-note"></i> Anotações:</strong> {{ evidencia.anotacoes or "(sem anotações)" }}<br>
+            
+            {% if is_admin or evidencia.usuario_id == session.usuario_id %}
+            <form method="POST" action="{{ url_for('excluir_evidencia', id=evidencia.id) }}" style="display: inline;">
+                <button type="submit" onclick="return confirm('Tem certeza que deseja apagar este registro?')">
+                    <i class="fas fa-trash"></i> Apagar
+                </button>
+            </form>
+            {% endif %}
+        </div>
+        {% else %}
+        <p>Nenhuma evidência registrada ainda.</p>
+        {% endfor %}
+    </div>
+
+    <!-- Todas as evidências (visível para todos) -->
+    <h3><i class="fas fa-users"></i> Todas as Evidências da Equipe</h3>
+    <div id="todas-registros">
+        {% for evidencia in todas_evidencias %}
+        <div class="registro">
+            <strong><i class="fas fa-calendar"></i> Data/Hora:</strong> {{ evidencia.data_registro.strftime('%d/%m/%Y %H:%M') }}<br>
+            <strong><i class="fas fa-user"></i> Registrado por:</strong> {{ evidencia.usuario.nome }}<br>
+            <strong><i class="fas fa-clipboard"></i> Descrição:</strong> {{ evidencia.descricao }}<br>
+            <strong><i class="fas fa-sticky-note"></i> Anotações:</strong> {{ evidencia.anotacoes or "(sem anotações)" }}<br>
+        </div>
+        {% else %}
+        <p>Nenhuma evidência registrada pela equipe.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

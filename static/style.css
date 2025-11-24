@@ -1,0 +1,138 @@
+
+body { 
+    font-family: Arial, sans-serif; 
+    margin: 20px;
+    background: #f9f9f9; 
+}
+h1, h2 { 
+    text-align: center; 
+}
+.container {
+    max-width: 400px; 
+    margin: auto; 
+    background: white; 
+    padding: 20px; 
+    border-radius: 8px; 
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2); 
+}
+label { 
+    display: block; 
+    margin-top: 10px; 
+    font-weight: bold; 
+}
+input, select, button, textarea { 
+    width: 100%; 
+    padding: 8px; 
+    margin-top: 5px; 
+    border-radius: 4px; 
+    border: 1px solid #ccc; 
+}
+button { 
+    background: #ffcc33; 
+    border: none; 
+    font-weight: bold; 
+    cursor: pointer; 
+}
+button:hover { 
+    background: #ffb300; 
+}
+.toggle-senha { 
+    position: relative; 
+}
+.toggle-senha input { 
+    width: calc(100% - 40px); 
+    display: inline-block; 
+}
+.toggle-senha button { 
+    width: 36px; 
+    position: absolute; 
+    right: 0; 
+    top: 0; 
+    height: 100%; 
+    background: transparent; 
+    border: none; 
+    cursor: pointer; }
+.notificacao {
+    position: fixed; 
+    bottom: 20px; 
+    right: 20px;
+    background: #333; 
+    color: #fff; 
+    padding: 12px 18px;
+    border-radius: 6px; 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    font-weight: bold; 
+    z-index: 1000;
+}
+.hidden { 
+    display: none; 
+}
+.erro { 
+    color: red; 
+    font-size: 0.9em; 
+}
+.registro { 
+    border: 1px solid #ccc; 
+    border-radius: 6px; 
+    padding: 10px; 
+    margin-top: 10px; 
+    background: #f0f0f0; 
+    position: relative; 
+}
+.registro button { 
+    position: absolute; 
+    top: 5px; 
+    right: 5px; 
+    background: red; 
+    color: #fff; 
+    padding: 2px 6px; 
+    border-radius: 4px; 
+    font-size: 0.8em; 
+}
+.arquivo-lista { 
+    font-size: 0.9em; 
+    margin-top: 4px;
+}
+
+/* Estado da Colmeia */
+.status-normal { 
+    background: #d4edda; 
+    color: #155724; 
+    padding: 8px; 
+    border-radius: 6px; 
+    text-align: center; 
+    margin-top: 10px; 
+}
+.status-alerta { 
+    background: #f8d7da; 
+    color: #721c24; 
+    padding: 8px; 
+    border-radius: 6px; 
+    text-align: center; 
+    margin-top: 10px; 
+}
+.atualizacao { 
+    font-size: 0.85em; 
+    color: #555; 
+    margin-top: 2px; 
+}
+
+/* Captura de Abelhas */
+.captura { 
+    border: 1px solid #ccc; 
+    border-radius: 6px; 
+    padding: 10px; 
+    margin-top: 10px; 
+    background: #e0f7fa; 
+    position: relative;
+}
+.captura button { 
+    position: absolute; 
+    top: 5px; 
+    right: 5px; 
+    background: red; 
+    color: #fff; 
+    padding: 2px 6px; 
+    border-radius: 4px; 
+    font-size: 0.8em; 
+}

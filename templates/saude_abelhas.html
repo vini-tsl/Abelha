@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="honeycomb-bg"></div>
+    <h2><i class="fas fa-heartbeat"></i> Saúde das Abelhas</h2>
+
+    <form method="POST" action="{{ url_for('registrar_saude') }}">
+        <div class="health-indicators">
+            <div class="health-indicator">
+                <div class="health-label">Nível de Atividade</div>
+                <div class="health-value" id="atividadeValue">5</div>
+                <input type="range" id="nivelAtividade" name="nivelAtividade" min="0" max="10" value="5" class="slider">
+            </div>
+            <div class="health-indicator">
+                <div class="health-label">Presença de Alimento</div>
+                <div class="health-value" id="alimentoValue">5</div>
+                <input type="range" id="presencaAlimento" name="presencaAlimento" min="0" max="10" value="5" class="slider">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="abelhasVisiveis"><i class="fas fa-bug"></i> Número de Abelhas Visíveis ou Contadas</label>
+            <input type="number" id="abelhasVisiveis" name="abelhasVisiveis" step="1" min="0" placeholder="Número aproximado">
+        </div>
+
+        <div class="form-group">
+            <label for="pregasProblemas"><i class="fas fa-exclamation-triangle"></i> Presença de Pragas ou Problemas</label>
+            <input type="text" id="pregasProblemas" name="pregasProblemas" placeholder="Descreva problemas observados...">
+        </div>
+
+        <div class="form-group">
+            <label for="observacoesGerais"><i class="fas fa-sticky-note"></i> Observações Gerais</label>
+            <textarea id="observacoesGerais" name="observacoesGerais" placeholder="Observações sobre a saúde das abelhas..."></textarea>
+        </div>
+
+        <div class="btn-group">
+            <button type="submit" class="btn">
+                <i class="fas fa-save"></i> Registrar Saúde
+            </button>
+            <a href="{{ url_for('monitoramento') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+        </div>
+    </form>
+
+    <h3><i class="fas fa-history"></i> Meus Registros de Saúde</h3>
+    <div id="registrosSaude">
+        {% for registro in registros_saude %}
+        <div class="registro">
+            <strong><i class="fas fa-calendar"></i> Data/Hora:</strong> {{ registro.data_registro.strftime('%d/%m/%Y %H:%M') }}<br>
+            <strong><i class="fas fa-user"></i> Registrado por:</strong> {{ registro.usuario.nome }}<br>
+            <strong><i class="fas fa-running"></i> Nível Atividade:</strong> {{ registro.nivel_atividade }}/10<br>
+            <strong><i class="fas fa-utensils"></i> Presença Alimento:</strong> {{ registro.presenca_alimento }}/10<br>
+            <strong><i class="fas fa-bug"></i> Abelhas Visíveis:</strong> {{ registro.abelhas_visiveis or "Não informado" }}<br>
+            <strong><i class="fas fa-exclamation-triangle"></i> Problemas:</strong> {{ registro.pregas_problemas or "(nenhum)" }}<br>
+            <strong><i class="fas fa-sticky-note"></i> Observações:</strong> {{ registro.observacoes_gerais or "(vazio)" }}<br>
+            
+            {% if is_admin or registro.usuario_id == session.usuario_id %}
+            <form method="POST" action="{{ url_for('excluir_saude', id=registro.id) }}" style="display: inline;">
+                <button type="submit" onclick="return confirm('Tem certeza que deseja apagar este registro de saúde?')">
+                    <i class="fas fa-trash"></i> Apagar
+                </button>
+            </form>
+            {% endif %}
+        </div>
+        {% else %}
+        <p>Nenhum registro de saúde encontrado.</p>
+        {% endfor %}
+    </div>
+
+    <h3><i class="fas fa-users"></i> Todos os Registros de Saúde da Equipe</h3>
+    <div id="todos-registros-saude">
+        {% for registro in todas_saude %}
+        <div class="registro">
+            <strong><i class="fas fa-calendar"></i> Data/Hora:</strong> {{ registro.data_registro.strftime('%d/%m/%Y %H:%M') }}<br>
+            <strong><i class="fas fa-user"></i> Registrado por:</strong> {{ registro.usuario.nome }}<br>
+            <strong><i class="fas fa-running"></i> Nível Atividade:</strong> {{ registro.nivel_atividade }}/10<br>
+            <strong><i class="fas fa-utensils"></i> Presença Alimento:</strong> {{ registro.presenca_alimento }}/10<br>
+            <strong><i class="fas fa-bug"></i> Abelhas Visíveis:</strong> {{ registro.abelhas_visiveis or "Não informado" }}<br>
+        </div>
+        {% else %}
+        <p>Nenhum registro de saúde da equipe.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    // Sliders de saúde
+    document.getElementById('nivelAtividade').addEventListener('input', function() {
+        document.getElementById('atividadeValue').textContent = this.value;
+    });
+    
+    document.getElementById('presencaAlimento').addEventListener('input', function() {
+        document.getElementById('alimentoValue').textContent = this.value;
+    });
+</script>
+{% endblock %}

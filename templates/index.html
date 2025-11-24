@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐝 BeeMonitor - Sistema de Monitoramento de Abelhas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-yellow: #FFC107;
+            --dark-yellow: #FFA000;
+            --honey: #FF9800;
+            --black: #212121;
+            --white: #FFFFFF;
+            --light-bg: #FFF9C4;
+            --light-border: #FFECB3;
+            --success: #4CAF50;
+            --error: #F44336;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #fff9c4 0%, #ffecb3 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffd54f' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E");
+            opacity: 0.6;
+            z-index: -1;
+        }
+        
+        .bee-decoration {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: var(--primary-yellow);
+            border-radius: 50%;
+            z-index: -1;
+            animation: float 15s infinite linear;
+        }
+        
+        .bee-decoration::before, .bee-decoration::after {
+            content: "";
+            position: absolute;
+            background: var(--black);
+        }
+        
+        .bee-decoration::before {
+            width: 40px;
+            height: 20px;
+            border-radius: 50%;
+            top: 10px;
+        }
+        
+        .bee-decoration::after {
+            width: 4px;
+            height: 10px;
+            top: 5px;
+            left: 18px;
+        }
+        
+        .bee-decoration .wing {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            top: 5px;
+        }
+        
+        .bee-decoration .wing:nth-child(1) {
+            left: -5px;
+            transform: rotate(20deg);
+        }
+        
+        .bee-decoration .wing:nth-child(2) {
+            right: -5px;
+            transform: rotate(-20deg);
+        }
+        
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(20px, 40px) rotate(90deg); }
+            50% { transform: translate(40px, 0) rotate(180deg); }
+            75% { transform: translate(20px, -40px) rotate(270deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .logo-icon {
+            font-size: 3rem;
+            color: var(--primary-yellow);
+            text-shadow: 2px 2px 0 var(--black);
+            animation: buzz 2s infinite alternate;
+        }
+        
+        @keyframes buzz {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-5px) rotate(5deg); }
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            color: var(--black);
+            text-shadow: 1px 1px 0 var(--primary-yellow);
+        }
+        
+        .subtitle {
+            color: var(--honey);
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        
+        .container {
+            background: var(--white);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            border: 2px solid var(--light-border);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        
+        .container:hover {
+            transform: translateY(-5px);
+        }
+        
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(90deg, var(--primary-yellow), var(--honey), var(--primary-yellow));
+        }
+        
+        h2 {
+            color: var(--black);
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        h2 i {
+            color: var(--primary-yellow);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--black);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        label i {
+            color: var(--honey);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid var(--light-border);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background-color: #fffdf5;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-yellow);
+            box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.2);
+        }
+        
+        .toggle-senha {
+            position: relative;
+        }
+        
+        .toggle-senha input {
+            padding-right: 50px;
+        }
+        
+        .toggle-senha button {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 9px;
+            border-radius: 8px;
+            color: var(--honey);
+            transition: background 0.3s;
+        }
+        
+        .toggle-senha button:hover {
+            background: rgba(255, 193, 7, 0.1);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, var(--primary-yellow), var(--honey));
+            color: var(--black);
+            border: none;
+            padding: 14px 20px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 0 var(--dark-yellow);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 var(--dark-yellow);
+        }
+        
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 var(--dark-yellow);
+        }
+        
+        .links {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .links a {
+            color: var(--honey);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .links a:hover {
+            color: var(--dark-yellow);
+            text-decoration: underline;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .erro {
+            color: var(--error);
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .honeycomb-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            opacity: 0.05;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50 0 L93 25 L93 75 L50 100 L7 75 L7 25 Z' fill='%23000'/%3E%3C/svg%3E");
+            background-size: 100px;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        
+        .step {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--light-border);
+            transition: background 0.3s;
+        }
+        
+        .step.active {
+            background: var(--primary-yellow);
+        }
+        
+        .password-strength {
+            height: 5px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .password-strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s, background 0.3s;
+            border-radius: 5px;
+        }
+        
+        .password-strength.weak .password-strength-bar {
+            width: 33%;
+            background: var(--error);
+        }
+        
+        .password-strength.medium .password-strength-bar {
+            width: 66%;
+            background: var(--honey);
+        }
+        
+        .password-strength.strong .password-strength-bar {
+            width: 100%;
+            background: var(--success);
+        }
+        
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: var(--black);
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+        /* Adicionar estilos para mensagens flash */
+        .flash-messages {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 400px;
+        }
+        
+        .flash-message {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .flash-success {
+            background: var(--success);
+            color: white;
+            border-left: 4px solid #2e7d32;
+        }
+        
+        .flash-error {
+            background: var(--error);
+            color: white;
+            border-left: 4px solid #c62828;
+        }
+        
+        .flash-warning {
+            background: var(--honey);
+            color: white;
+            border-left: 4px solid #f57c00;
+        }
+        
+        .flash-info {
+            background: #2196F3;
+            color: white;
+            border-left: 4px solid #1565c0;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Abelhas decorativas -->
+    <div class="bee-decoration" style="top: 10%; left: 5%; animation-delay: 0s;">
+        <div class="wing"></div>
+        <div class="wing"></div>
+    </div>
+    <div class="bee-decoration" style="top: 70%; left: 90%; animation-delay: 5s;">
+        <div class="wing"></div>
+        <div class="wing"></div>
+    </div>
+    <div class="bee-decoration" style="top: 40%; left: 85%; animation-delay: 10s;">
+        <div class="wing"></div>
+        <div class="wing"></div>
+    </div>
+
+    <!-- Mensagens Flash -->
+    <div class="flash-messages" id="flashMessages"></div>
+
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">🐝</div>
+            <h1>BeeMonitor</h1>
+        </div>
+        <p class="subtitle">Sistema de Monitoramento de Abelhas</p>
+    </div>
+
+    <!-- CADASTRO -->
+    <div id="cadastro" class="container">
+        <div class="honeycomb-bg"></div>
+        <h2><i class="fas fa-user-plus"></i> Cadastro</h2>
+        
+        <form id="formCadastro" method="POST" action="{{ url_for('cadastro') }}">
+            <div class="form-group">
+                <label for="nome"><i class="fas fa-user"></i> Nome Completo</label>
+                <input type="text" id="nome" name="nome" placeholder="Digite seu nome completo" required>
+                <div id="erroNome" class="erro"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="email"><i class="fas fa-envelope"></i> E-mail</label>
+                <input type="email" id="email" name="email" placeholder="seu.email@exemplo.com" required>
+                <div id="erroEmail" class="erro"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="telefone"><i class="fas fa-phone"></i> Telefone (somente números)</label>
+                <input type="text" id="telefone" name="telefone" placeholder="(11) 99999-9999" required>
+                <div id="erroTelefone" class="erro"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="cpf"><i class="fas fa-id-card"></i> CPF (11 dígitos)</label>
+                <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" required>
+                <div id="erroCPF" class="erro"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="tipoUsuario"><i class="fas fa-users"></i> Tipo de Usuário</label>
+                <select id="tipoUsuario" name="tipoUsuario" onchange="verificarTipo()" required>
+                    <option value="">-- Selecione --</option>
+                    <option value="Administrador">Administrador</option>
+                    <option value="Participante">Participante</option>
+                </select>
+                <div id="erroTipo" class="erro"></div>
+            </div>
+
+            <div id="divMatricula" class="form-group hidden">
+                <label for="matricula"><i class="fas fa-id-badge"></i> Matrícula (12 dígitos)</label>
+                <input type="text" id="matricula" name="matricula" placeholder="000000000000">
+                <div id="erroMatricula" class="erro"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="senhaCadastro"><i class="fas fa-lock"></i> Senha</label>
+                <div class="toggle-senha">
+                    <input type="password" id="senhaCadastro" name="senhaCadastro" placeholder="Mínimo 6 caracteres" required>
+                    <button type="button" onclick="toggleSenha('senhaCadastro', this)"><i class="fas fa-eye"></i></button>
+                </div>
+                <div class="password-strength" id="passwordStrength">
+                    <div class="password-strength-bar"></div>
+                </div>
+                <div id="erroSenhaCadastro" class="erro"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmaCadastro"><i class="fas fa-lock"></i> Confirmar Senha</label>
+                <div class="toggle-senha">
+                    <input type="password" id="confirmaCadastro" name="confirmaCadastro" placeholder="Digite novamente sua senha" required>
+                    <button type="button" onclick="toggleSenha('confirmaCadastro', this)"><i class="fas fa-eye"></i></button>
+                </div>
+                <div id="erroConfirmaCadastro" class="erro"></div>
+            </div>
+
+            <button type="submit" class="btn"><i class="fas fa-user-plus"></i> Cadastrar</button>
+        </form>
+        
+        <div class="links">
+            <p>Já tem conta? <a href="#" onclick="mostrarLogin()"><i class="fas fa-sign-in-alt"></i> Faça login</a></p>
+        </div>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="login" class="container">
+        <div class="honeycomb-bg"></div>
+        <h2><i class="fas fa-sign-in-alt"></i> Login BeeMonitor</h2>
+        
+        <form id="formLogin" method="POST" action="{{ url_for('login') }}">
+            <div class="form-group">
+                <label for="emailLogin"><i class="fas fa-envelope"></i> E-mail</label>
+                <input type="email" id="emailLogin" name="emailLogin" placeholder="seu.email@exemplo.com" required>
+                <div id="erroEmailLogin" class="erro"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="senhaLogin"><i class="fas fa-lock"></i> Senha</label>
+                <div class="toggle-senha">
+                    <input type="password" id="senhaLogin" name="senhaLogin" placeholder="Digite sua senha" required>
+                    <button type="button" onclick="toggleSenha('senhaLogin', this)"><i class="fas fa-eye"></i></button>
+                </div>
+                <div id="erroSenhaLogin" class="erro"></div>
+            </div>
+
+            <button type="submit" class="btn"><i class="fas fa-sign-in-alt"></i> Entrar</button>
+        </form>
+        
+        <div class="links">
+            <p><a href="#" onclick="mostrarRecuperar()"><i class="fas fa-key"></i> Esqueceu a senha?</a></p>
+            <p><a href="#" onclick="mostrarCadastro()"><i class="fas fa-arrow-left"></i> Voltar para cadastro</a></p>
+        </div>
+    </div>
+
+    <!-- RECUPERAR SENHA -->
+    <div id="recuperar" class="container hidden">
+        <div class="honeycomb-bg"></div>
+        <h2><i class="fas fa-key"></i> Recuperar Senha</h2>
+        
+        <div class="step-indicator">
+            <div class="step active"></div>
+            <div class="step"></div>
+            <div class="step"></div>
+        </div>
+
+        <div id="etapa1">
+            <div class="form-group">
+                <label for="emailRecuperar"><i class="fas fa-envelope"></i> Digite seu e-mail cadastrado</label>
+                <input type="email" id="emailRecuperar" placeholder="seu.email@exemplo.com">
+                <div id="erroEmailRecuperar" class="erro"></div>
+            </div>
+            <button class="btn" onclick="enviarCodigo()"><i class="fas fa-paper-plane"></i> Enviar Código</button>
+        </div>
+
+        <div id="etapa2" class="hidden">
+            <div class="form-group">
+                <label for="codigoInput"><i class="fas fa-shield-alt"></i> Digite o código enviado</label>
+                <input type="text" id="codigoInput" placeholder="Código de 6 dígitos">
+                <div id="erroCodigo" class="erro"></div>
+            </div>
+            <button class="btn" onclick="verificarCodigo()"><i class="fas fa-check"></i> Verificar Código</button>
+        </div>
+
+        <div id="etapa3" class="hidden">
+            <div class="form-group">
+                <label for="novaSenha"><i class="fas fa-lock"></i> Nova Senha</label>
+                <div class="toggle-senha">
+                    <input type="password" id="novaSenha" placeholder="Mínimo 6 caracteres">
+                    <button type="button" onclick="toggleSenha('novaSenha', this)"><i class="fas fa-eye"></i></button>
+                </div>
+                <div id="erroNovaSenha" class="erro"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmarSenha"><i class="fas fa-lock"></i> Confirmar Nova Senha</label>
+                <div class="toggle-senha">
+                    <input type="password" id="confirmarSenha" placeholder="Digite novamente a nova senha">
+                    <button type="button" onclick="toggleSenha('confirmarSenha', this)"><i class="fas fa-eye"></i></button>
+                </div>
+                <div id="erroConfirmaSenha" class="erro"></div>
+            </div>
+
+            <button class="btn" onclick="redefinirSenha()"><i class="fas fa-sync-alt"></i> Redefinir Senha</button>
+        </div>
+
+        <div class="links">
+            <p><a href="#" onclick="mostrarLogin()"><i class="fas fa-arrow-left"></i> Voltar para login</a></p>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>🐝 BeeMonitor - Sistema de Monitoramento de Abelhas © 2023</p>
+    </div>
+
+    <script>
+        // Adicionar abelhas decorativas dinamicamente
+        for (let i = 0; i < 5; i++) {
+            const bee = document.createElement('div');
+            bee.className = 'bee-decoration';
+            bee.style.top = `${Math.random() * 90}%`;
+            bee.style.left = `${Math.random() * 90}%`;
+            bee.style.animationDelay = `${Math.random() * 15}s`;
+            
+            const wing1 = document.createElement('div');
+            wing1.className = 'wing';
+            const wing2 = document.createElement('div');
+            wing2.className = 'wing';
+            
+            bee.appendChild(wing1);
+            bee.appendChild(wing2);
+            document.body.appendChild(bee);
+        }
+        
+        // Função para verificar força da senha
+        document.getElementById('senhaCadastro')?.addEventListener('input', function() {
+            const password = this.value;
+            const strengthBar = document.querySelector('.password-strength');
+            const strength = calculatePasswordStrength(password);
+            
+            strengthBar.className = 'password-strength';
+            if (password.length > 0) {
+                strengthBar.classList.add(strength);
+            }
+        });
+        
+        function calculatePasswordStrength(password) {
+            if (password.length < 6) return 'weak';
+            if (password.length < 10) return 'medium';
+            return 'strong';
+        }
+        
+        // Funções do sistema
+        function verificarTipo() {
+            const tipo = document.getElementById("tipoUsuario").value;
+            const divMatricula = document.getElementById("divMatricula");
+            if (tipo === "Participante") {
+                divMatricula.classList.remove("hidden");
+                document.getElementById("matricula").required = true;
+            } else {
+                divMatricula.classList.add("hidden");
+                document.getElementById("matricula").required = false;
+            }
+        }
+        
+        function toggleSenha(id) {
+            const campo = document.getElementById(id);
+            const icone = campo.nextElementSibling.querySelector('i');
+            
+            if (campo.type === "password") {
+                campo.type = "text";
+                icone.className = "fas fa-eye-slash";
+            } else {
+                campo.type = "password";
+                icone.className = "fas fa-eye";
+            }
+        }
+        
+        function mostrarCadastro() {
+            document.getElementById("login").classList.add("hidden");
+            document.getElementById("recuperar").classList.add("hidden");
+            document.getElementById("cadastro").classList.remove("hidden");
+        }
+        
+        function mostrarLogin() {
+            document.getElementById("cadastro").classList.add("hidden");
+            document.getElementById("recuperar").classList.add("hidden");
+            document.getElementById("login").classList.remove("hidden");
+        }
+        
+        function mostrarRecuperar() {
+            document.getElementById("cadastro").classList.add("hidden");
+            document.getElementById("login").classList.add("hidden");
+            document.getElementById("recuperar").classList.remove("hidden");
+            
+            // Resetar etapas
+            document.getElementById("etapa1").classList.remove("hidden");
+            document.getElementById("etapa2").classList.add("hidden");
+            document.getElementById("etapa3").classList.add("hidden");
+            
+            // Atualizar indicador de etapas
+            const steps = document.querySelectorAll('.step');
+            steps.forEach((step, index) => {
+                step.classList.toggle('active', index === 0);
+            });
+        }
+        
+        // Sistema de mensagens flash
+        function mostrarFlashMessage(message, category) {
+            const flashContainer = document.getElementById('flashMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flash-message flash-${category}`;
+            
+            let icon = 'fa-info-circle';
+            if (category === 'success') icon = 'fa-check-circle';
+            if (category === 'error') icon = 'fa-exclamation-circle';
+            if (category === 'warning') icon = 'fa-exclamation-triangle';
+            
+            messageDiv.innerHTML = `
+                <i class="fas ${icon}"></i>
+                <span>${message}</span>
+            `;
+            
+            flashContainer.appendChild(messageDiv);
+            
+            // Remover automaticamente após 5 segundos
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
+        }
+        
+        // Verificar se há mensagens flash do Flask
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mostrar login por padrão
+            mostrarLogin();
+            
+            // Verificar se há usuário logado (redirecionar para monitoramento)
+            {% if session.usuario_id %}
+                window.location.href = "{{ url_for('monitoramento') }}";
+            {% endif %}
+        });
+        
+        // Funções de exemplo para recuperação de senha
+        function enviarCodigo() {
+            document.getElementById("etapa1").classList.add("hidden");
+            document.getElementById("etapa2").classList.remove("hidden");
+            
+            // Atualizar indicador de etapas
+            const steps = document.querySelectorAll('.step');
+            steps.forEach((step, index) => {
+                step.classList.toggle('active', index === 1);
+            });
+            
+            mostrarFlashMessage("Código enviado para o e-mail!", "info");
+        }
+        
+        function verificarCodigo() {
+            document.getElementById("etapa2").classList.add("hidden");
+            document.getElementById("etapa3").classList.remove("hidden");
+            
+            // Atualizar indicador de etapas
+            const steps = document.querySelectorAll('.step');
+            steps.forEach((step, index) => {
+                step.classList.toggle('active', index === 2);
+            });
+            
+            mostrarFlashMessage("Código verificado com sucesso!", "success");
+        }
+        
+        function redefinirSenha() {
+            mostrarFlashMessage("Senha redefinida com sucesso!", "success");
+            setTimeout(() => {
+                mostrarLogin();
+            }, 2000);
+        }
+        
+        // Validação de formulários
+        document.getElementById('formCadastro')?.addEventListener('submit', function(e) {
+            const senha = document.getElementById('senhaCadastro').value;
+            const confirmaSenha = document.getElementById('confirmaCadastro').value;
+            
+            if (senha !== confirmaSenha) {
+                e.preventDefault();
+                mostrarFlashMessage("As senhas não coincidem!", "error");
+                return false;
+            }
+            
+            if (senha.length < 6) {
+                e.preventDefault();
+                mostrarFlashMessage("A senha deve ter pelo menos 6 caracteres!", "error");
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>
